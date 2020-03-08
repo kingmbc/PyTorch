@@ -60,7 +60,7 @@ class Net(torch.nn.Module):
 
     def forward(self, x):
         x, _status = self.rnn(x)
-        x = self.fc(x[:, -1])
+        x = self.fc(x[:, -1])   #kingmbc: 마지막 스텝의 아웃풋만 사용하니까 -1
         return x
 
 

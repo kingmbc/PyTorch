@@ -18,7 +18,10 @@ h = [1, 0, 0, 0]
 e = [0, 1, 0, 0]
 l = [0, 0, 1, 0]
 o = [0, 0, 0, 1]
-input_data_np = np.array([[h, e, l, l, o], [e, o, l, l, l], [l, l, e, e, l]], dtype=np.float32)
+input_data_np = np.array([[h, e, l, l, o],
+                          [e, o, l, l, l],
+                          [l, l, e, e, l]],
+                         dtype=np.float32)
 
 # transform as torch tensor
 input_data = torch.Tensor(input_data_np)

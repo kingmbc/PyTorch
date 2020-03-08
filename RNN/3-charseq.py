@@ -12,14 +12,14 @@ char_set = list(set(sample))
 char_dic = {c: i for i, c in enumerate(char_set)}
 
 # hyper parameters
-dic_size = len(char_dic)
+input_size = len(char_dic)
 hidden_size = len(char_dic)
 learning_rate = 0.1
 
 # data setting
 sample_idx = [char_dic[c] for c in sample]
 x_data = [sample_idx[:-1]]
-x_one_hot = [np.eye(dic_size)[x] for x in x_data]
+x_one_hot = [np.eye(input_size)[x] for x in x_data]
 y_data = [sample_idx[1:]]
 
 # transform as torch tensor variable
@@ -27,7 +27,7 @@ X = torch.FloatTensor(x_one_hot)
 Y = torch.LongTensor(y_data)
 
 # declare RNN
-rnn = torch.nn.RNN(dic_size, hidden_size, batch_first=True)
+rnn = torch.nn.RNN(input_size, hidden_size, batch_first=True)
 
 # loss & optimizer setting
 criterion = torch.nn.CrossEntropyLoss()
@@ -37,7 +37,7 @@ optimizer = optim.Adam(rnn.parameters(), learning_rate)
 for i in range(50):
     optimizer.zero_grad()
     outputs, _status = rnn(X)
-    loss = criterion(outputs.view(-1, dic_size), Y.view(-1))
+    loss = criterion(outputs.view(-1, input_size), Y.view(-1))
     loss.backward()
     optimizer.step()
 

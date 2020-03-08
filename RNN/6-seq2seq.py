@@ -12,7 +12,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 raw = ["I feel hungry.	나는 배가 고프다.",
        "Pytorch is very easy.	파이토치는 매우 쉽다.",
        "Pytorch is a framework for deep learning.	파이토치는 딥러닝을 위한 프레임워크이다.",
-       "Pytorch is very clear to use.	파이토치는 사용하기 매우 직관적이다."]
+       "Pytorch is very clear to use.	파이토치는 사용하기 매우 직관적이다.",
+       "Pytorch is a good framework.	파이토치는 좋은 프레임워크이다."]
 
 SOS_token = 0
 EOS_token = 1
@@ -91,7 +92,9 @@ class Decoder(nn.Module):
         x = self.softmax(self.out(x[0]))
         return x, hidden
 
-
+"""
+Setence -> One-hot Vector로 변경
+"""
 def tensorize(vocab, sentence):
     indexes = [vocab.vocab2index[word] for word in sentence.split(" ")]
     indexes.append(vocab.vocab2index["<EOS>"])
@@ -114,6 +117,7 @@ def train(pairs, source_vocab, target_vocab, encoder, decoder, n_iter, print_eve
         source_tensor = training_source[i - 1]
         target_tensor = training_target[i - 1]
 
+        #Encoder의 처음 Hidden값이 없기 때문에 0벡터로 만드는 과정
         encoder_hidden = torch.zeros([1, 1, encoder.hidden_size]).to(device)
 
         encoder_optimizer.zero_grad()
@@ -124,15 +128,19 @@ def train(pairs, source_vocab, target_vocab, encoder, decoder, n_iter, print_eve
 
         loss = 0
 
+        #Source의 문장을 돌면서 Encoder에 입력값이 들어가서 hidden값을 계산한다.
         for enc_input in range(source_length):
             _, encoder_hidden = encoder(source_tensor[enc_input], encoder_hidden)
 
+        #Decorder의 첫 입력으로 시작을 알리기 위한 SOS토큰이 된다.
         decoder_input = torch.Tensor([[SOS_token]]).long().to(device)
         decoder_hidden = encoder_hidden
 
         for di in range(target_length):
             decoder_output, decoder_hidden = decoder(decoder_input, decoder_hidden)
             loss += criterion(decoder_output, target_tensor[di])
+            #다음 GRU에 이전 GRU Hidden 결과값을 넣어주는 것이 아닌,
+            #정답으로 알고 있는 문장을 다음 GRU에 넣어준다. 빨리 네트웍 학습을 수렴하게 할 수 있음
             decoder_input = target_tensor[di]  # teacher forcing
 
         loss.backward()
